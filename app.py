@@ -1,6 +1,12 @@
 import pathlib
+import subprocess
+import sys
 
 import streamlit as st
+
+if not pathlib.Path("vectorstore/chroma.sqlite3").exists():
+    with st.spinner("Building knowledge base..."):
+        subprocess.run([sys.executable, "ingest.py"], check=True)
 
 from graph import app as graph
 
@@ -14,9 +20,6 @@ with st.sidebar:
                 "- I can't study on Saturday\n- 18 chapters in 9 days, per day?")
     if st.button("New chat"):
         st.session_state.clear(); st.rerun()
-
-if not pathlib.Path("vectorstore/chroma.sqlite3").exists():
-    st.warning("Knowledge base is empty. Stop the app and run: python ingest.py")
 
 state = st.session_state.setdefault("state", {})
 for m in state.get("messages", []):
